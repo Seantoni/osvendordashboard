@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ofertas - Panel de Comerciante</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* Deals-specific styles */
+        .deals-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing);
+        }
+
+        .report-filters {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.75rem;
+        }
+
+        .filter-select {
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 0.95rem;
+            min-width: 150px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .search-bar {
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 0.95rem;
+            width: 300px;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .deals-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: var(--spacing);
+        }
+
+        .metric-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .metric-title {
+            color: var(--text-color);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .deals-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            table-layout: fixed;
+        }
+
+        .deals-table th,
+        .deals-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .deals-table th:first-child,
+        .deals-table td:first-child {
+            width: 30%;
+        }
+
+        .deals-table th:nth-child(2),
+        .deals-table td:nth-child(2) {
+            width: 12%;
+        }
+
+        .deals-table th:nth-child(3),
+        .deals-table td:nth-child(3) {
+            width: 10%;
+        }
+
+        .deals-table th:nth-child(4),
+        .deals-table td:nth-child(4) {
+            width: 15%;
+        }
+
+        .deals-table th:nth-child(5),
+        .deals-table td:nth-child(5) {
+            width: 10%;
+        }
+
+        .deals-table th:nth-child(6),
+        .deals-table td:nth-child(6) {
+            width: 10%;
+        }
+
+        .deals-table th:last-child,
+        .deals-table td:last-child {
+            width: 13%;
+            text-align: center;
+        }
+
+        .deals-table th {
+            background: var(--bg-color);
+            font-weight: 500;
+            color: var(--text-color);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .deals-table tr:hover {
+            background: rgba(255, 68, 32, 0.03);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-badge.active {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        .status-badge.finished {
+            background: rgba(100, 116, 139, 0.1);
+            color: #64748b;
+        }
+
+        .launch-date {
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .deal-progress {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: #eee;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            white-space: nowrap;
+        }
+
+        .action-icons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+        }
+
+        .action-icon {
+            color: var(--text-color);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .action-icon:hover {
+            color: var(--primary-color);
+        }
+
+        .action-icon.repeat:hover {
+            color: #22c55e;
+        }
+
+        .action-icon.support:hover {
+            color: #3b82f6;
+        }
+
+        .action-icon.download:hover {
+            color: var(--primary-color);
+        }
+
+        .action-icon-wrapper {
+            position: relative;
+        }
+
+        .action-icon-wrapper:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.5rem;
+            background: #333;
+            color: white;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            white-space: nowrap;
+            z-index: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Add filter button styles */
+        .filter-buttons {
+            display: flex;
+            gap: 0.75rem;
+            margin-left: 1rem;
+        }
+
+        .filter-button {
+            padding: 0.75rem 1.25rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            background: white;
+            color: var(--text-color);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-button:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .filter-button.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <button class="sidebar-toggle">☰</button>
+    <div class="sidebar">
+        <h1 style="margin: 0 0 1.5rem 1rem;">Panel</h1>
+        <a href="index.html">Vista General</a>
+        <a href="deals.html" class="active">Ofertas</a>
+    </div>
+    <div class="main-content">
+        <div class="card">
+            <div class="deals-header">
+                <div>
+                    <h2>Ofertas</h2>
+                    <div class="report-filters">
+                        <select class="filter-select" id="timeRange">
+                            <option value="7">Últimos 7 días</option>
+                            <option value="30">Últimos 30 días</option>
+                            <option value="90">Últimos 90 días</option>
+                            <option value="365">Último año</option>
+                        </select>
+                        <div class="filter-buttons">
+                            <button class="filter-button active" data-status="all">Todos</button>
+                            <button class="filter-button" data-status="active">Activos</button>
+                            <button class="filter-button" data-status="inactive">Inactivos</button>
+                        </div>
+                    </div>
+                </div>
+                <input type="text" class="search-bar" placeholder="Buscar ofertas...">
+            </div>
+
+            <div class="deals-summary">
+                <div class="metric-card">
+                    <div class="metric-title">Total de Ofertas</div>
+                    <div class="metric-value">12</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Ofertas Activas</div>
+                    <div class="metric-value">8</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Ganancias Totales</div>
+                    <div class="metric-value">$45,890</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Tasa de Canje Promedio</div>
+                    <div class="metric-value">82.4%</div>
+                </div>
+            </div>
+
+            <table class="deals-table">
+                <thead>
+                    <tr>
+                        <th>Nombre de la Oferta</th>
+                        <th>Fecha de Lanzamiento</th>
+                        <th>Estado</th>
+                        <th>Progreso</th>
+                        <th>Canjes</th>
+                        <th>Ganancias</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Paga $20 y consume $40 en comidas y bebidas</td>
+                        <td class="launch-date">15 Ago 2024</td>
+                        <td><span class="status-badge active">Activo</span></td>
+                        <td>
+                            <div class="deal-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 75%"></div>
+                                </div>
+                                <span class="progress-text">75%</span>
+                            </div>
+                        </td>
+                        <td>453/501</td>
+                        <td>$9,060</td>
+                        <td>
+                            <div class="action-icons">
+                                <div class="action-icon-wrapper" data-tooltip="Repetir Oferta">
+                                    <i class="fa-solid fa-rotate action-icon repeat"></i>
+                                </div>
+                                <div class="action-icon-wrapper" data-tooltip="Contactar Soporte">
+                                    <i class="fa-solid fa-headset action-icon support"></i>
+                                </div>
+                                <div class="action-icon-wrapper" data-tooltip="Descargar Reporte">
+                                    <i class="fa-solid fa-download action-icon download"></i>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Menú completo para 2 personas</td>
+                        <td class="launch-date">20 Ago 2024</td>
+                        <td><span class="status-badge active">Activo</span></td>
+                        <td>
+                            <div class="deal-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 62%"></div>
+                                </div>
+                                <span class="progress-text">62%</span>
+                            </div>
+                        </td>
+                        <td>398/425</td>
+                        <td>$13,930</td>
+                        <td>
+                            <div class="action-icons">
+                                <div class="action-icon-wrapper" data-tooltip="Repetir Oferta">
+                                    <i class="fa-solid fa-rotate action-icon repeat"></i>
+                                </div>
+                                <div class="action-icon-wrapper" data-tooltip="Contactar Soporte">
+                                    <i class="fa-solid fa-headset action-icon support"></i>
+                                </div>
+                                <div class="action-icon-wrapper" data-tooltip="Descargar Reporte">
+                                    <i class="fa-solid fa-download action-icon download"></i>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Parrillada premium para 4 personas</td>
+                        <td class="launch-date">22 Ago 2024</td>
+                        <td><span class="status-badge finished">Inactivo</span></td>
+                        <td>
+                            <div class="deal-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 45%"></div>
+                                </div>
+                                <span class="progress-text">45%</span>
+                            </div>
+                        </td>
+                        <td>289/312</td>
+                        <td>$8,670</td>
+                        <td>
+                            <div class="action-icons">
+                                <div class="action-icon-wrapper" data-tooltip="Repetir Oferta">
+                                    <i class="fa-solid fa-rotate action-icon repeat"></i>
+                                </div>
+                                <div class="action-icon-wrapper" data-tooltip="Contactar Soporte">
+                                    <i class="fa-solid fa-headset action-icon support"></i>
+                                </div>
+                                <div class="action-icon-wrapper" data-tooltip="Descargar Reporte">
+                                    <i class="fa-solid fa-download action-icon download"></i>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Experiencia gastronómica para 6 personas</td>
+                        <td class="launch-date">25 Ago 2024</td>
+                        <td><span class="status-badge active">Activo</span></td>
+                        <td>
+                            <div class="deal-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 35%"></div>
+                                </div>
+                                <span class="progress-text">35%</span>
+                            </div>
+                        </td>
+                        <td>175/200</td>
+                        <td>$8,750</td>
+                        <td>
+                            <div class="action-icons">
+                                <div class="action-icon-wrapper" data-tooltip="Repetir Oferta">
+                                    <i class="fa-solid fa-rotate action-icon repeat"></i>
+                                </div>
+                                <div class="action-icon-wrapper" data-tooltip="Contactar Soporte">
+                                    <i class="fa-solid fa-headset action-icon support"></i>
+                                </div>
+                                <div class="action-icon-wrapper" data-tooltip="Descargar Reporte">
+                                    <i class="fa-solid fa-download action-icon download"></i>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Desayuno buffet para 2</td>
+                        <td class="launch-date">18 Ago 2024</td>
+                        <td><span class="status-badge finished">Inactivo</span></td>
+                        <td>
+                            <div class="deal-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 100%"></div>
+                                </div>
+                                <span class="progress-text">100%</span>
+                            </div>
+                        </td>
+                        <td>150/150</td>
+                        <td>$5,480</td>
+                        <td>
+                            <div class="action-icons">
+                                <div class="action-icon-wrapper" data-tooltip="Repetir Oferta">
+                                    <i class="fa-solid fa-rotate action-icon repeat"></i>
+                                </div>
+                                <div class="action-icon-wrapper" data-tooltip="Contactar Soporte">
+                                    <i class="fa-solid fa-headset action-icon support"></i>
+                                </div>
+                                <div class="action-icon-wrapper" data-tooltip="Descargar Reporte">
+                                    <i class="fa-solid fa-download action-icon download"></i>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        // Handle time range changes
+        document.getElementById('timeRange').addEventListener('change', function(e) {
+            const days = parseInt(e.target.value);
+            // Aquí normalmente obtendrías nuevos datos basados en el rango de tiempo seleccionado
+            // Por ahora, actualizaremos las métricas con datos de ejemplo
+            updateMetrics(days);
+        });
+
+        // Función auxiliar para actualizar métricas
+        function updateMetrics(days) {
+            // En una aplicación real, obtendrías estos datos del backend
+            // Por ahora, actualizaremos con cambios aleatorios
+            const metrics = document.querySelectorAll('.metric-value');
+            
+            metrics.forEach((metric) => {
+                if (metric.textContent.includes('$')) {
+                    const randomValue = Math.floor(Math.random() * 50000) + 20000;
+                    metric.textContent = `$${randomValue.toLocaleString()}`;
+                } else if (metric.textContent.includes('%')) {
+                    const randomValue = (Math.random() * 20 + 70).toFixed(1);
+                    metric.textContent = `${randomValue}%`;
+                } else {
+                    const randomValue = Math.floor(Math.random() * 15) + 5;
+                    metric.textContent = randomValue;
+                }
+            });
+        }
+
+        // Update filter functionality for buttons
+        const filterButtons = document.querySelectorAll('.filter-button');
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Update active state of buttons
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+
+                // Filter the table
+                const status = this.dataset.status;
+                const rows = document.querySelectorAll('.deals-table tbody tr');
+                
+                rows.forEach(row => {
+                    const statusBadge = row.querySelector('.status-badge');
+                    if (status === 'all' || 
+                        (status === 'active' && statusBadge.textContent === 'Activo') ||
+                        (status === 'inactive' && statusBadge.textContent === 'Inactivo')) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

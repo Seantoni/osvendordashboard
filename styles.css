@@ -1,0 +1,122 @@
+:root {
+    --primary-color: #FF4420;
+    --secondary-color: #333;
+    --bg-color: #f8f9fa;
+    --text-color: #666;
+    --border-radius: 12px;
+    --spacing: 1.5rem;
+    --transition: 0.3s ease;
+    --sidebar-width: 220px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+}
+
+.sidebar {
+    width: var(--sidebar-width);
+    background: white;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    padding: var(--spacing);
+    transition: transform var(--transition);
+    z-index: 1000;
+}
+
+.sidebar.collapsed {
+    transform: translateX(calc(-1 * var(--sidebar-width)));
+}
+
+.sidebar-toggle {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1001;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.sidebar-toggle:hover {
+    opacity: 0.9;
+}
+
+.sidebar a {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-weight: 500;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    transition: all var(--transition);
+}
+
+.sidebar a:hover {
+    background: rgba(255, 68, 32, 0.1);
+    color: var(--primary-color);
+}
+
+.main-content {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    padding: 2rem;
+    transition: margin-left var(--transition);
+}
+
+.main-content.collapsed {
+    margin-left: 0;
+}
+
+.card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: var(--spacing);
+    margin-bottom: var(--spacing);
+}
+
+h1, h2 {
+    color: var(--secondary-color);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+h1 {
+    font-size: 1.5rem;
+}
+
+h2 {
+    font-size: 1.25rem;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin-top: 1rem;
+}
+
+canvas {
+    border-radius: 8px;
+} 

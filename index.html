@@ -1,975 +1,628 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vendor Dashboard</title>
+    <title>Panel de Comerciante</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        }
-
-        body {
-            background: #f5f5f7;
-            color: #1d1d1f;
-            padding: 1.5rem;
-            line-height: 1.4;
-        }
-
-        .dashboard-container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .header {
+        /* Overview-specific styles */
+        .report-filters {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding: 1.25rem;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        .company-logo {
-            height: 40px;
-            width: auto;
-            object-fit: contain;
-        }
-
-        .header-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #1d1d1f;
-        }
-
-        .date {
-            color: #666;
-            font-size: 0.95rem;
-        }
-
-        .deals-list {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-        }
-
-        .deal-item {
-            display: flex;
-            flex-direction: column;
-            padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid #f0f0f0;
-            position: relative;
-            cursor: pointer;
-            padding-left: 2rem;
-        }
-
-        .deal-row {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            transition: background-color 0.2s ease;
-            pointer-events: none;
-        }
-
-        .deal-row:hover {
-            background-color: rgba(255, 68, 32, 0.02);
-        }
-
-        .deal-main {
-            display: grid;
-            grid-template-columns: minmax(400px, 3fr) 80px 80px 80px 80px;
-            align-items: center;
             gap: 1rem;
-            width: 100%;
+            margin-bottom: var(--spacing);
         }
 
-        .deal-tabs {
-            border-top: none;
-            padding-top: 0;
-        }
-
-        .deal-tab {
-            padding: 0.5rem 0.75rem;
-            background: none;
-            border: none;
-            color: #666;
-            cursor: pointer;
-            font-size: 0.85rem;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-        }
-
-        .deal-tab:hover {
-            background: rgba(255, 68, 32, 0.05);
-            color: #FF4420;
-        }
-
-        .deal-tab.active {
-            background: #FF4420;
-            color: white;
-        }
-
-        .deal-name {
-            font-weight: 500;
-            color: #1d1d1f;
-            text-align: left;
-            padding-right: 2rem;
-        }
-
-        .deal-price {
-            font-weight: 600;
-            color: #FF4420;
-            text-align: center;
-            font-size: 0.95rem;
-        }
-
-        .deal-metric {
-            text-align: center;
-            color: #666;
-            font-size: 0.95rem;
-        }
-
-        .deal-metric.highlight {
-            color: #FF4420;
-            font-weight: 500;
-        }
-
-        @media (max-width: 768px) {
-            .deal-item {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .deal-main {
-                grid-template-columns: 1fr;
-                gap: 0.5rem;
-            }
-            
-            .deal-price, 
-            .deal-metric {
-                text-align: left;
-            }
-        }
-
-        .deal-dropdown {
-            margin-left: 1.5rem;
-            min-width: 140px;
-            flex-shrink: 0;
-            position: relative;
-        }
-
-        .dropdown-button {
-            width: 100%;
-            padding: 0.6rem 1rem;
-            background: white;
-            border: 1px solid #e0e0e0;
-            color: #666;
-            cursor: pointer;
-            font-size: 0.85rem;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: all 0.2s ease;
-        }
-
-        .dropdown-button:hover {
-            border-color: #FF4420;
-            color: #FF4420;
-        }
-
-        .dropdown-button:after {
-            content: '▼';
-            font-size: 0.8em;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: calc(100% + 4px);
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            display: none;
-            z-index: 1000;
-        }
-
-        .dropdown-menu.show {
-            display: block;
-        }
-
-        .dropdown-item {
+        .filter-select {
             padding: 0.75rem 1rem;
-            color: #666;
-            text-decoration: none;
-            display: block;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            white-space: nowrap;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 0.95rem;
+            min-width: 150px;
         }
 
-        .dropdown-item:hover {
-            background: rgba(255, 68, 32, 0.05);
-            color: #FF4420;
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
         }
 
-        .dropdown-item.active {
-            background: #FF4420;
-            color: white;
-        }
-
-        .deals-header {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid #f0f0f0;
-            background: #f8f9fa;
-            border-radius: 12px 12px 0 0;
-        }
-
-        .deals-header-main {
+        .metrics-grid {
             display: grid;
-            grid-template-columns: minmax(400px, 3fr) 80px 80px 80px 80px;
-            align-items: center;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 1rem;
-            width: 100%;
-            padding-left: 2rem;
+            margin-bottom: var(--spacing);
         }
 
-        .header-cell {
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: #666;
-            letter-spacing: 0.5px;
-            text-align: right;
-        }
-
-        .header-cell:first-child {
-            text-align: left;
-        }
-
-        .deal-name {
-            text-align: left;
-        }
-
-        .deal-price,
-        .deal-metric {
-            text-align: right;
-        }
-
-        /* Remove any conflicting padding */
-        .deal-metrics {
-            display: contents;
-        }
-
-        /* Ensure consistent padding */
-        .deals-header {
-            padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .deal-item {
-            padding: 1.25rem 1.5rem;
-            padding-left: 2rem;
-        }
-
-        /* Update the spacing for the dropdown area */
-        .deals-header > div:last-child,
-        .deal-dropdown {
-            width: 140px;
-            flex-shrink: 0;
-        }
-
-        @media (max-width: 768px) {
-            .deals-header {
-                display: none;
-            }
-
-            .deals-header-main,
-            .deal-main {
-                grid-template-columns: 1fr;
-                gap: 0.5rem;
-            }
-        }
-
-        /* Add styles for the expandable stats */
-        .deal-stats {
-            display: none;
-            padding: 1.5rem 2rem;
-            margin: 1.25rem -1.5rem -1.25rem;
-            background: #f8f9fa;
-            border-top: 1px solid #f0f0f0;
-            width: calc(100% + 3rem);
-        }
-
-        .deal-stats.expanded {
-            display: flex;
-            justify-content: space-between;
-            gap: 2rem;
-        }
-
-        .stat-box {
-            flex: 1;
+        .metric-card {
             background: white;
             padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
-        .stat-box-label {
-            font-size: 0.7rem;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
+        .metric-title {
+            color: var(--text-color);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
         }
 
-        .stat-box-value {
+        .metric-value {
+            color: var(--secondary-color);
             font-size: 1.5rem;
             font-weight: 600;
-            color: #FF4420;
         }
 
-        /* Add expand/collapse indicator */
-        .deal-item {
-            cursor: pointer;
-        }
-
-        .deal-item::before {
-            content: '▼';
-            position: absolute;
-            top: 1.75rem;
-            left: 0.75rem;
-            color: #666;
-            transition: transform 0.2s ease;
-            font-size: 0.8rem;
-        }
-
-        .deal-item.collapsed::before {
-            transform: rotate(-90deg);
-        }
-
-        /* Adjust padding for the indicator */
-        .deal-item {
-            position: relative;
-            padding-left: 2rem;
-        }
-
-        /* Mobile adjustments */
-        @media (max-width: 768px) {
-            .deal-stats.expanded {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .deal-stats {
-                padding: 1rem;
-                margin: 1rem -1rem -1rem;
-                width: calc(100% + 2rem);
-            }
-
-            .deal-dropdown {
-                margin-left: 0;
-                width: 100%;
-            }
-
-            .dropdown-menu {
-                position: absolute;
-                width: 100%;
-            }
-        }
-
-        /* Update mobile styles */
-        @media (max-width: 768px) {
-            /* Header adjustments */
-            .header {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-                padding: 1rem;
-            }
-
-            .header-left {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            /* Deal row adjustments */
-            .deal-row {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .deal-main {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.75rem;
-                width: 100%;
-            }
-
-            .deal-name {
-                width: 100%;
-                margin-bottom: 0.5rem;
-            }
-
-            /* Create a grid for metrics */
-            .deal-metrics {
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                width: 100%;
-                gap: 0.5rem;
-            }
-
-            .deal-price,
-            .deal-metric {
-                text-align: center;
-                padding: 0.5rem;
-                background: #f8f9fa;
-                border-radius: 4px;
-                font-size: 0.9rem;
-            }
-
-            /* Dropdown adjustments */
-            .deal-dropdown {
-                width: 100%;
-                margin-left: 0;
-            }
-
-            /* Stats adjustments */
-            .deal-stats {
-                padding: 1rem;
-                margin: 1rem -1rem -1rem;
-                width: calc(100% + 2rem);
-            }
-
-            .deal-stats.expanded {
-                flex-direction: column;
-                gap: 0.75rem;
-            }
-
-            .stat-box {
-                padding: 1rem;
-            }
-
-            /* Arrow indicator adjustment */
-            .deal-item {
-                padding-left: 1.5rem;
-            }
-
-            .deal-item::before {
-                left: 0.5rem;
-                top: 1.5rem;
-            }
-
-            /* Body padding adjustment */
-            body {
-                padding: 0.75rem;
-            }
-        }
-
-        /* Remove these styles for desktop */
-        @media (min-width: 769px) {
-            .deal-metrics {
-                display: contents;
-            }
-
-            .deal-price,
-            .deal-metric {
-                background: none;
-                padding: 0;
-            }
-        }
-
-        /* 1. Visual Feedback and Interactions */
-        .deal-row {
-            transition: background-color 0.2s ease;
-        }
-
-        .deal-row:hover {
-            background-color: rgba(255, 68, 32, 0.02);
-        }
-
-        .dropdown-button:hover {
-            background-color: #f8f9fa;
-        }
-
-        .deal-stats {
-            transition: all 0.3s ease-in-out;
-        }
-
-        /* 2. Better Visual Hierarchy */
-        .deal-metric.highlight {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
-        .deal-stats {
-            border-top: 2px solid rgba(255, 68, 32, 0.1);
-        }
-
-        /* 3. Loading States */
-        .skeleton {
-            animation: pulse 1.5s infinite;
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-        }
-
-        .skeleton-text {
-            height: 20px;
-            width: 80%;
-            border-radius: 4px;
-            margin-bottom: 8px;
-        }
-
-        .skeleton-metrics {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
-        }
-
-        .skeleton-metric {
-            height: 24px;
-            border-radius: 4px;
-        }
-
-        @keyframes pulse {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        /* 4. Error States */
-        .error-state {
-            padding: 2rem;
-            text-align: center;
-            background: #fff;
-            border-radius: 12px;
-            margin: 1rem 0;
-        }
-
-        .error-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
-
-        .retry-button {
-            margin-top: 1rem;
-            padding: 0.75rem 1.5rem;
-            background: #FF4420;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-
-        .retry-button:hover {
-            background: #e63a19;
-        }
-
-        /* 5. Empty States */
-        .empty-state {
-            padding: 3rem 2rem;
-            text-align: center;
-            background: #fff;
-            border-radius: 12px;
-            margin: 1rem 0;
-        }
-
-        .empty-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .empty-state p {
-            color: #666;
+        .metric-change {
+            font-size: 0.9rem;
             margin-top: 0.5rem;
         }
 
-        /* 8. Responsive Improvements */
+        .metric-change.positive {
+            color: #22c55e;
+        }
+
+        .metric-change.negative {
+            color: #ef4444;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-top: var(--spacing);
+        }
+
+        .chart-card {
+            background: white;
+            padding: var(--spacing);
+            border-radius: var(--border-radius);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-top: 1rem;
+        }
+
         @media (max-width: 1024px) {
-            .deal-main {
-                grid-template-columns: minmax(300px, 2fr) 70px 70px 70px 70px;
+            .chart-grid {
+                grid-template-columns: 1fr;
             }
         }
 
-        @media (max-width: 480px) {
-            .stat-box-value {
-                font-size: 1.25rem;
-            }
+        .active-deals {
+            margin-top: var(--spacing);
         }
 
-        /* 9. Print Styles */
-        @media print {
-            .deal-dropdown,
-            .dropdown-button {
-                display: none;
-            }
-            
-            .deal-stats {
-                display: flex !important;
-                break-inside: avoid;
-            }
-
-            body {
-                background: white;
-            }
-
-            .deals-list {
-                box-shadow: none;
-            }
+        .deals-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
         }
 
-        /* Touch device optimizations */
-        .touch-device .dropdown-button {
-            padding: 0.8rem 1rem;  /* Larger touch target */
+        .deals-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: var(--spacing);
         }
 
-        .touch-device .deal-item::before {
-            font-size: 1rem;  /* Larger arrow for touch */
+        .deals-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
         }
 
-        .deal-row > * {
-            pointer-events: auto;
+        .deals-table th,
+        .deals-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .deals-table th {
+            background: var(--bg-color);
+            font-weight: 500;
+            color: var(--text-color);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .deals-table tr:hover {
+            background: rgba(255, 68, 32, 0.03);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-badge.active {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        .status-badge.finished {
+            background: rgba(100, 116, 139, 0.1);
+            color: #64748b;
+        }
+
+        .launch-date {
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .deal-progress {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: #eee;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            white-space: nowrap;
+        }
+
+        /* Add new styles for the CTA button */
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: var(--primary-color);
+            color: white;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .cta-button:hover {
+            background: #e63d1c;
+        }
+
+        /* Update CTA button styles */
+        .cta-button-container {
+            display: flex;
+            justify-content: flex-start;
+            margin-top: 2rem;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary-color);
+            color: white;
+            border-radius: var(--border-radius);
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .cta-button:hover {
+            background: #e63d1c;
+        }
+
+        .cta-card {
+            background: white;
+            border-radius: var(--border-radius);
+            margin-bottom: var(--spacing);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .cta-content {
+            display: flex;
+            align-items: center;
+            padding: 1.5rem;
+            gap: 1.5rem;
+        }
+
+        .cta-icon {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            background: rgba(255, 68, 32, 0.1);
+            padding: 1rem;
+            border-radius: 50%;
+        }
+
+        .cta-text {
+            flex: 1;
+        }
+
+        .cta-text h3 {
+            color: var(--secondary-color);
+            margin: 0 0 0.25rem 0;
+            font-size: 1.1rem;
+        }
+
+        .cta-text p {
+            color: var(--text-color);
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .cta-button {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .cta-button:hover {
+            background: #e63d1c;
         }
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <div class="header">
-            <div class="header-left">
-                <img src="https://images.milledcdn.com/2022-02-10/hfoIus5U4hVN2IFx/0_sky8wol6io.png" alt="Company Logo" class="company-logo">
-                <h1 class="header-title">Os Segredos Da Carne</h1>
+    <button class="sidebar-toggle">☰</button>
+    <div class="sidebar">
+        <h1 style="margin: 0 0 1.5rem 1rem;">Panel</h1>
+        <a href="index.html" class="active">Vista General</a>
+        <a href="deals.html">Ofertas</a>
+    </div>
+    <div class="main-content">
+        <div class="card" id="overview">
+            <h2>Vista General del Panel</h2>
+            <div class="report-filters">
+                <select class="filter-select" id="timeRange">
+                    <option value="7">Últimos 7 días</option>
+                    <option value="30">Últimos 30 días</option>
+                    <option value="90">Últimos 90 días</option>
+                    <option value="365">Último año</option>
+                </select>
             </div>
-            <div class="date">27 de agosto de 2024</div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-title">Ingresos Totales</div>
+                    <div class="metric-value">$58,490</div>
+                    <div class="metric-change positive">↑ 12.5% vs periodo anterior</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Ventas Totales</div>
+                    <div class="metric-value">1,874</div>
+                    <div class="metric-change positive">↑ 8.2% vs periodo anterior</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Valor Promedio de Orden</div>
+                    <div class="metric-value">$31.21</div>
+                    <div class="metric-change positive">↑ 4.3% vs periodo anterior</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Tasa de Canje</div>
+                    <div class="metric-value">89.4%</div>
+                    <div class="metric-change negative">↓ 2.1% vs periodo anterior</div>
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <h3>Tendencia de Ingresos</h3>
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3>Distribución de Ventas</h3>
+                    <div class="chart-container">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="active-deals">
+                <div class="deals-header">
+                    <h3>Últimas Ofertas</h3>
+                </div>
+                <div class="deals-summary">
+                    <div class="metric-card">
+                        <div class="metric-title">Total de Vouchers Activos</div>
+                        <div class="metric-value">2,847</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">Canjes Pendientes</div>
+                        <div class="metric-value">436</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">Tasa de Canje</div>
+                        <div class="metric-value">84.7%</div>
+                    </div>
+                </div>
+                <table class="deals-table">
+                    <thead>
+                        <tr>
+                            <th>Nombre de la Oferta</th>
+                            <th>Fecha de Lanzamiento</th>
+                            <th>Estado</th>
+                            <th>Progreso</th>
+                            <th>Canjes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Paga $20 y consume $40 en comidas y bebidas</td>
+                            <td class="launch-date">15 Ago 2024</td>
+                            <td><span class="status-badge active">Activo</span></td>
+                            <td>
+                                <div class="deal-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 75%"></div>
+                                    </div>
+                                    <span class="progress-text">75%</span>
+                                </div>
+                            </td>
+                            <td>453/501</td>
+                        </tr>
+                        <tr>
+                            <td>Menú completo para 2 personas</td>
+                            <td class="launch-date">20 Ago 2024</td>
+                            <td><span class="status-badge active">Activo</span></td>
+                            <td>
+                                <div class="deal-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 62%"></div>
+                                    </div>
+                                    <span class="progress-text">62%</span>
+                                </div>
+                            </td>
+                            <td>398/425</td>
+                        </tr>
+                        <tr>
+                            <td>Parrillada premium para 4 personas</td>
+                            <td class="launch-date">22 Ago 2024</td>
+                            <td><span class="status-badge finished">Finalizado</span></td>
+                            <td>
+                                <div class="deal-progress">
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 45%"></div>
+                                    </div>
+                                    <span class="progress-text">45%</span>
+                                </div>
+                            </td>
+                            <td>289/312</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="cta-button-container">
+                    <a href="deals.html" class="cta-button">Ver todas</a>
+                </div>
+            </div>
         </div>
 
-        <div class="deals-list">
-            <!-- Loading State Example -->
-            <div class="deal-item skeleton" style="display: none;">
-                <div class="deal-row">
-                    <div class="deal-main">
-                        <div class="skeleton-text"></div>
-                        <div class="skeleton-metrics">
-                            <div class="skeleton-metric"></div>
-                            <div class="skeleton-metric"></div>
-                            <div class="skeleton-metric"></div>
-                            <div class="skeleton-metric"></div>
-                        </div>
-                    </div>
+        <!-- CTA for new offers -->
+        <div class="cta-card">
+            <div class="cta-content">
+                <i class="fa-solid fa-clock-rotate-left cta-icon"></i>
+                <div class="cta-text">
+                    <h3>Han pasado 15 días desde tu última oferta</h3>
+                    <p>Mantén el impulso de ventas creando una nueva oferta</p>
                 </div>
+                <a href="deals.html" class="cta-button">Crear Nueva Oferta</a>
             </div>
+        </div>
 
-            <!-- Error State Example -->
-            <div class="error-state" style="display: none;">
-                <div class="error-icon">⚠️</div>
-                <h3>No se pudieron cargar los datos</h3>
-                <button class="retry-button">Intentar de nuevo</button>
-            </div>
-
-            <!-- Empty State Example -->
-            <div class="empty-state" style="display: none;">
-                <div class="empty-icon">📊</div>
-                <h3>No hay ofertas activas</h3>
-                <p>Las ofertas aparecerán aquí cuando estén disponibles</p>
-            </div>
-
+        <div class="card">
             <div class="deals-header">
-                <div class="deals-header-main">
-                    <div class="header-cell">Descripción</div>
-                    <div class="header-cell">Precio</div>
-                    <div class="header-cell">Descuento</div>
-                    <div class="header-cell">Vendidos</div>
-                    <div class="header-cell">Usados</div>
-                </div>
-                <div style="width: 120px;"></div>
+                <h2>Últimas Ofertas</h2>
             </div>
-            <div class="deal-item">
-                <div class="deal-row">
-                    <div class="deal-main">
-                        <div class="deal-name">Paga $20 y consume $40 en comidas y bebidas en Os Segredos Da Carne</div>
-                        <div class="deal-metrics">
-                            <div class="deal-price">$20</div>
-                            <div class="deal-metric">50%</div>
-                            <div class="deal-metric highlight">501</div>
-                            <div class="deal-metric">453</div>
-                        </div>
-                    </div>
-                    <div class="deal-dropdown">
-                        <button class="dropdown-button">Reportes</button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item active">Mismo Día</a>
-                            <a class="dropdown-item">Día Anterior</a>
-                            <a class="dropdown-item">Semana Anterior</a>
-                            <a class="dropdown-item">Mes Anterior</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="deal-stats expanded">
-                    <div class="stat-box">
-                        <div class="stat-box-label">OFERTAS VENDIDAS/USADAS</div>
-                        <div class="stat-box-value">502/467</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-box-label">TOTAL DE VENTAS</div>
-                        <div class="stat-box-value">$10,040</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-box-label">GANANCIAS NETAS</div>
-                        <div class="stat-box-value">$7,028</div>
-                    </div>
-                </div>
-            </div>
-            <div class="deal-item collapsed">
-                <div class="deal-row">
-                    <div class="deal-main">
-                        <div class="deal-name">Paga $20 y consume $40 en comidas y bebidas en Os Segredos Da Carne</div>
-                        <div class="deal-metrics">
-                            <div class="deal-price">$20</div>
-                            <div class="deal-metric">50%</div>
-                            <div class="deal-metric highlight">495</div>
-                            <div class="deal-metric">456</div>
-                        </div>
-                    </div>
-                    <div class="deal-dropdown">
-                        <button class="dropdown-button">Reportes</button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item">Mismo Día</a>
-                            <a class="dropdown-item active">Día Anterior</a>
-                            <a class="dropdown-item">Semana Anterior</a>
-                            <a class="dropdown-item">Mes Anterior</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="deal-stats">
-                    <div class="stat-box">
-                        <div class="stat-box-label">OFERTAS VENDIDAS/USADAS</div>
-                        <div class="stat-box-value">502/467</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-box-label">TOTAL DE VENTAS</div>
-                        <div class="stat-box-value">$10,040</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-box-label">GANANCIAS NETAS</div>
-                        <div class="stat-box-value">$7,028</div>
-                    </div>
-                </div>
-            </div>
-            <div class="deal-item collapsed">
-                <div class="deal-row">
-                    <div class="deal-main">
-                        <div class="deal-name">Paga $20 y consume $40 en comidas y bebidas en Os Segredos Da Carne</div>
-                        <div class="deal-metrics">
-                            <div class="deal-price">$20</div>
-                            <div class="deal-metric">50%</div>
-                            <div class="deal-metric highlight">501</div>
-                            <div class="deal-metric">453</div>
-                        </div>
-                    </div>
-                    <div class="deal-dropdown">
-                        <button class="dropdown-button">Reportes</button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item">Mismo Día</a>
-                            <a class="dropdown-item">Día Anterior</a>
-                            <a class="dropdown-item active">Semana Anterior</a>
-                            <a class="dropdown-item">Mes Anterior</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="deal-stats">
-                    <div class="stat-box">
-                        <div class="stat-box-label">OFERTAS VENDIDAS/USADAS</div>
-                        <div class="stat-box-value">502/467</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-box-label">TOTAL DE VENTAS</div>
-                        <div class="stat-box-value">$10,040</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-box-label">GANANCIAS NETAS</div>
-                        <div class="stat-box-value">$7,028</div>
-                    </div>
-                </div>
-            </div>
-            <div class="deal-item collapsed">
-                <div class="deal-row">
-                    <div class="deal-main">
-                        <div class="deal-name">Paga $20 y consume $40 en comidas y bebidas en Os Segredos Da Carne</div>
-                        <div class="deal-metrics">
-                            <div class="deal-price">$20</div>
-                            <div class="deal-metric">50%</div>
-                            <div class="deal-metric highlight">495</div>
-                            <div class="deal-metric">456</div>
-                        </div>
-                    </div>
-                    <div class="deal-dropdown">
-                        <button class="dropdown-button">Reportes</button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item">Mismo Día</a>
-                            <a class="dropdown-item">Día Anterior</a>
-                            <a class="dropdown-item">Semana Anterior</a>
-                            <a class="dropdown-item active">Mes Anterior</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="deal-stats">
-                    <div class="stat-box">
-                        <div class="stat-box-label">OFERTAS VENDIDAS/USADAS</div>
-                        <div class="stat-box-value">502/467</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-box-label">TOTAL DE VENTAS</div>
-                        <div class="stat-box-value">$10,040</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-box-label">GANANCIAS NETAS</div>
-                        <div class="stat-box-value">$7,028</div>
-                    </div>
-                </div>
-            </div>
+
+            <style>
+            .cta-card {
+                background: white;
+                border-radius: var(--border-radius);
+                margin-bottom: var(--spacing);
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                overflow: hidden;
+            }
+
+            .cta-content {
+                display: flex;
+                align-items: center;
+                padding: 1.5rem;
+                gap: 1.5rem;
+            }
+
+            .cta-icon {
+                font-size: 1.5rem;
+                color: var(--primary-color);
+                background: rgba(255, 68, 32, 0.1);
+                padding: 1rem;
+                border-radius: 50%;
+            }
+
+            .cta-text {
+                flex: 1;
+            }
+
+            .cta-text h3 {
+                color: var(--secondary-color);
+                margin: 0 0 0.25rem 0;
+                font-size: 1.1rem;
+            }
+
+            .cta-text p {
+                color: var(--text-color);
+                margin: 0;
+                font-size: 0.95rem;
+            }
+
+            .cta-button {
+                background: var(--primary-color);
+                color: white;
+                padding: 0.75rem 1.5rem;
+                border-radius: var(--border-radius);
+                text-decoration: none;
+                font-weight: 500;
+                transition: background 0.2s ease;
+                white-space: nowrap;
+            }
+
+            .cta-button:hover {
+                background: #e63d1c;
+            }
+            </style>
         </div>
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Dropdown functionality
-            document.querySelectorAll('.dropdown-button').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const menu = e.target.nextElementSibling;
-                    menu.classList.toggle('show');
-                    
-                    // Close other dropdowns
-                    document.querySelectorAll('.dropdown-menu').forEach(dropdownMenu => {
-                        if (dropdownMenu !== menu) {
-                            dropdownMenu.classList.remove('show');
-                        }
-                    });
-                    e.stopPropagation();
-                });
-            });
-
-            // Close dropdowns when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!e.target.matches('.dropdown-button')) {
-                    document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                        menu.classList.remove('show');
-                    });
-                }
-            });
-
-            // Expand/collapse functionality
-            document.querySelectorAll('.deal-item').forEach((item, index) => {
-                const stats = item.querySelector('.deal-stats');
-                if (!stats) return;
-
-                // Set initial states more explicitly
-                if (index === 0) {
-                    item.classList.remove('collapsed');
-                    stats.classList.add('expanded');
-                } else {
-                    item.classList.add('collapsed');
-                    stats.classList.remove('expanded');
-                }
-                
-                item.addEventListener('click', (e) => {
-                    // Don't trigger if clicking dropdown or its children
-                    if (e.target.closest('.deal-dropdown')) return;
-                    
-                    const isExpanded = stats.classList.contains('expanded');
-                    
-                    // First collapse all
-                    document.querySelectorAll('.deal-item').forEach(dealItem => {
-                        const dealStats = dealItem.querySelector('.deal-stats');
-                        if (dealStats) {
-                            dealStats.classList.remove('expanded');
-                            dealItem.classList.add('collapsed');
-                        }
-                    });
-                    
-                    // Then expand the clicked one if it wasn't expanded
-                    if (!isExpanded) {
-                        stats.classList.add('expanded');
-                        item.classList.remove('collapsed');
+        // Initialize Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        let revenueChart = new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                datasets: [{
+                    label: 'Ingresos',
+                    data: [8500, 7200, 9300, 8100, 9500, 11200, 9800],
+                    borderColor: 'rgba(255, 68, 32, 0.8)',
+                    backgroundColor: 'rgba(255, 68, 32, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
                     }
-                });
-            });
-
-            // Prevent dropdown clicks from triggering row expansion
-            document.querySelectorAll('.deal-dropdown').forEach(dropdown => {
-                dropdown.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                });
-            });
-        });
-
-        // Debounce function
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-
-        // Intersection Observer for lazy loading
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.remove('skeleton');
-                    // Here you would load the actual data
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
                 }
-            });
+            }
         });
 
-        // Touch device detection
-        if ('ontouchstart' in window) {
-            document.body.classList.add('touch-device');
-        }
+        // Initialize Sales Distribution Chart
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        let salesChart = new Chart(salesCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Comidas y Bebidas', 'Entretenimiento', 'Servicios', 'Otros'],
+                datasets: [{
+                    data: [45, 25, 20, 10],
+                    backgroundColor: [
+                        'rgba(255, 68, 32, 0.8)',
+                        'rgba(255, 68, 32, 0.6)',
+                        'rgba(255, 68, 32, 0.4)',
+                        'rgba(255, 68, 32, 0.2)'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                family: 'Inter',
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
 
-        // Progressive enhancement checks
-        if ('IntersectionObserver' in window) {
-            // Initialize observers for deal items
-            document.querySelectorAll('.deal-item').forEach(item => {
-                observer.observe(item);
-            });
-        }
-
-        // Error handling example
-        function handleError() {
-            const errorState = document.querySelector('.error-state');
-            errorState.style.display = 'block';
+        // Handle time range changes
+        document.getElementById('timeRange').addEventListener('change', function(e) {
+            const days = parseInt(e.target.value);
+            // Aquí normalmente obtendrías nuevos datos basados en el rango de tiempo seleccionado
+            // Por ahora, actualizaremos los gráficos con datos de ejemplo
             
-            const retryButton = errorState.querySelector('.retry-button');
-            retryButton.addEventListener('click', () => {
-                errorState.style.display = 'none';
-                // Retry loading data
+            // Actualizar gráfico de ingresos con nuevos datos
+            const newRevenueData = generateDummyData(days);
+            revenueChart.data.labels = newRevenueData.labels;
+            revenueChart.data.datasets[0].data = newRevenueData.values;
+            revenueChart.update();
+
+            // Actualizar métricas
+            updateMetrics(days);
+        });
+
+        // Función auxiliar para generar datos de ejemplo
+        function generateDummyData(days) {
+            const labels = [];
+            const values = [];
+            for (let i = 0; i < Math.min(days, 7); i++) {
+                labels.push(`Día ${i + 1}`);
+                values.push(Math.floor(Math.random() * 5000) + 5000);
+            }
+            return { labels, values };
+        }
+
+        // Función auxiliar para actualizar métricas
+        function updateMetrics(days) {
+            // En una aplicación real, obtendrías estos datos del backend
+            // Por ahora, actualizaremos con cambios aleatorios
+            const metrics = document.querySelectorAll('.metric-value');
+            const changes = document.querySelectorAll('.metric-change');
+            
+            metrics.forEach((metric, index) => {
+                const randomChange = (Math.random() * 20 - 10).toFixed(1);
+                const change = changes[index];
+                
+                if (parseFloat(randomChange) > 0) {
+                    change.classList.remove('negative');
+                    change.classList.add('positive');
+                    change.textContent = `↑ ${randomChange}% vs periodo anterior`;
+                } else {
+                    change.classList.remove('positive');
+                    change.classList.add('negative');
+                    change.textContent = `↓ ${Math.abs(randomChange)}% vs periodo anterior`;
+                }
             });
         }
     </script>
